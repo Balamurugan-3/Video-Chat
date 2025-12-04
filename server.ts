@@ -57,7 +57,7 @@ app.prepare().then(async () => {
   io.on("connection", (socket) => {
     console.log("Client connected", socket.id);
 
-    socket.on("find_match", ({ peerId, country, name, gender, age }) => {
+    socket.on("find_match", async ({ peerId, country, name, gender, age }) => {
       // Validate that all required profile data exists
       if (!peerId) {
         console.error(`❌ User ${socket.id} missing peerId`);
