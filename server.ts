@@ -171,29 +171,65 @@ app.prepare().then(async () => {
             });
             console.log("✅ Message saved to database");
           } catch (error) {
-            socket.on("disconnect", () => {
-              // Remove from queue if present
-              queue = queue.filter(u => u.socketId !== socket.id);
+            console.error("❌ Error saving message:", error);
+          }
+        }
+      }
+    });
 
-              // Notify anyone in a room with this user
-              const rooms = Array.from(socket.rooms);
-              const chatRoom = rooms.find(r => r !== socket.id);
+    socket.on("end_call", async () => {
+      const rooms = Array.from(socket.rooms);
+      const chatRoom = rooms.find(r => r !== socket.id);
 
-              if (chatRoom) {
-                socket.to(chatRoom).emit("peer_disconnected");
-                console.log(`👋 User ${socket.id} disconnected from room ${chatRoom}`);
-              }
+      if (chatRoom) {
+        socket.to(chatRoom).emit("call_ended");
+        console.log(`Call ended by ${socket.id} in room ${chatRoom}`);
 
-              console.log(`❌ Client disconnected: ${socket.id}`);
+        // Mark session as ended in database
+        if (process.env.MONGODB_URI && activeSessions.has(chatRoom)) {
+          try {
+            const ChatSession = (await import("./src/models/ChatSession")).default;
+            const sessionId = activeSessions.get(chatRoom);
+
+            await ChatSession.findByIdAndUpdate(sessionId, {
+              endedAt: new Date()
             });
-          });
+            activeSessions.delete(chatRoom);
+            console.log("✅ Chat session ended in database");
+          } catch (error) {
+            console.error("❌ Error ending chat session:", error);
+          }
+        }
 
-    httpServer
-      .once("error", (err) => {
-        console.error(err);
-        process.exit(1);
-      })
-      .listen(port, () => {
-        console.log(`> Ready on http://${hostname}:${port}`);
-      });
+        // Both leave the room
+        socket.leave(chatRoom);
+        io.sockets.sockets.get(chatRoom.replace(socket.id, "").replace("-", ""))?.leave(chatRoom);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      // Remove from queue if present
+      queue = queue.filter(u => u.socketId !== socket.id);
+
+      // Notify anyone in a room with this user
+      const rooms = Array.from(socket.rooms);
+      const chatRoom = rooms.find(r => r !== socket.id);
+
+      if (chatRoom) {
+        socket.to(chatRoom).emit("peer_disconnected");
+        console.log(`👋 User ${socket.id} disconnected from room ${chatRoom}`);
+      }
+
+      console.log(`❌ Client disconnected: ${socket.id}`);
+    });
   });
+
+  httpServer
+    .once("error", (err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .listen(port, () => {
+      console.log(`> Ready on http://${hostname}:${port}`);
+    });
+});
