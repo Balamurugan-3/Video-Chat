@@ -160,8 +160,8 @@ app.prepare().then(async () => {
             const ChatSession = (await import("./src/models/ChatSession")).default;
             const sessionId = activeSessions.get(chatRoom);
 
-            await ChatSession.findByIdAndUpdate(
-              sessionId,
+            await ChatSession.updateOne(
+              { _id: sessionId },
               {
                 $push: {
                   messages: {
@@ -170,7 +170,7 @@ app.prepare().then(async () => {
                     timestamp: new Date()
                   }
                 }
-              } as any
+              }
             );
             console.log("✅ Message saved to database");
           } catch (error) {
@@ -194,9 +194,9 @@ app.prepare().then(async () => {
             const ChatSession = (await import("./src/models/ChatSession")).default;
             const sessionId = activeSessions.get(chatRoom);
 
-            await ChatSession.findByIdAndUpdate(
-              sessionId,
-              { endedAt: new Date() } as any
+            await ChatSession.updateOne(
+              { _id: sessionId },
+              { endedAt: new Date() }
             );
             activeSessions.delete(chatRoom);
             console.log("✅ Chat session ended in database");
