@@ -4,7 +4,7 @@ import ChatSession from '@/models/ChatSession';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const authHeader = request.headers.get('authorization');
@@ -14,7 +14,8 @@ export async function GET(
 
         await dbConnect();
 
-        const chat = await ChatSession.findById(params.id);
+        const { id } = await params;
+        const chat = await ChatSession.findById(id);
         if (!chat) {
             return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
         }
@@ -28,7 +29,7 @@ export async function GET(
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const authHeader = request.headers.get('authorization');
@@ -39,9 +40,10 @@ export async function POST(
         await dbConnect();
 
         const { reportReason } = await request.json();
+        const { id } = await params;
 
         const chat = await ChatSession.findByIdAndUpdate(
-            params.id,
+            id,
             {
                 reported: true,
                 reportReason

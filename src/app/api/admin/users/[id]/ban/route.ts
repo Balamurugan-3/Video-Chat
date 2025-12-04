@@ -4,7 +4,7 @@ import User from '@/models/User';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -14,7 +14,8 @@ export async function POST(
 
     await dbConnect();
 
-    const user = await User.findById(params.id);
+    const { id } = await params;
+    const user = await User.findById(id);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
