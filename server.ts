@@ -160,15 +160,18 @@ app.prepare().then(async () => {
             const ChatSession = (await import("./src/models/ChatSession")).default;
             const sessionId = activeSessions.get(chatRoom);
 
-            await ChatSession.findByIdAndUpdate(sessionId, {
-              $push: {
-                messages: {
-                  senderId: socket.id,
-                  text: message,
-                  timestamp: new Date()
+            await ChatSession.findByIdAndUpdate(
+              sessionId,
+              {
+                $push: {
+                  messages: {
+                    senderId: socket.id,
+                    text: message,
+                    timestamp: new Date()
+                  }
                 }
-              }
-            });
+              } as any
+            );
             console.log("✅ Message saved to database");
           } catch (error) {
             console.error("❌ Error saving message:", error);
@@ -191,9 +194,10 @@ app.prepare().then(async () => {
             const ChatSession = (await import("./src/models/ChatSession")).default;
             const sessionId = activeSessions.get(chatRoom);
 
-            await ChatSession.findByIdAndUpdate(sessionId, {
-              endedAt: new Date()
-            });
+            await ChatSession.findByIdAndUpdate(
+              sessionId,
+              { endedAt: new Date() } as any
+            );
             activeSessions.delete(chatRoom);
             console.log("✅ Chat session ended in database");
           } catch (error) {
