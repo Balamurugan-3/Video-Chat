@@ -52,6 +52,12 @@ export default function ChatPage() {
     }, [session]);
 
     useEffect(() => {
+        if (session === null) {
+            router.push("/login");
+        }
+    }, [session, router]);
+
+    useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
@@ -136,7 +142,7 @@ export default function ChatPage() {
     };
 
     useEffect(() => {
-        initializeMedia();
+        // initializeMedia(); // Removed auto-initialization
 
         // Initialize PeerJS first
         import("peerjs").then(({ default: Peer }) => {
