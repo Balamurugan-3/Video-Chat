@@ -402,15 +402,10 @@ export default function ChatPage() {
                                 ) : (
                                     <>
                                         <div className="w-full space-y-4">
-                                            <div>
-                                                <label className="text-gray-400 text-sm mb-2 block">Your Name</label>
-                                                <input
-                                                    type="text"
-                                                    value={name}
-                                                    onChange={(e) => setName(e.target.value)}
-                                                    placeholder="Enter your name"
-                                                    className="w-full bg-zinc-800 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-primary transition-colors"
-                                                />
+                                            {/* Name is auto-filled from Google */}
+                                            <div className="text-center mb-4">
+                                                <p className="text-gray-400 text-sm">Welcome,</p>
+                                                <h3 className="text-xl font-bold text-white">{name}</h3>
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-4">
@@ -437,20 +432,9 @@ export default function ChatPage() {
                                                 </div>
                                             </div>
 
-                                            <div>
-                                                <label className="text-gray-400 text-sm mb-2 block">Region</label>
-                                                <select
-                                                    value={country}
-                                                    onChange={(e) => setCountry(e.target.value)}
-                                                    className="w-full bg-zinc-800 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-primary transition-colors"
-                                                >
-                                                    <option value="Global">Global</option>
-                                                    <option value="US">United States</option>
-                                                    <option value="IN">India</option>
-                                                    <option value="UK">United Kingdom</option>
-                                                </select>
-                                            </div>
                                         </div>
+
+                                        {/* Country hidden/defaulted as requested */}
 
                                         <button
                                             onClick={handleStartClick}
